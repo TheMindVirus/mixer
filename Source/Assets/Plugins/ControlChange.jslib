@@ -1,0 +1,1 @@
+mergeInto(LibraryManager.library, { ControlChange: function(name, value) { ControlChange(Pointer_stringify(name), value); } });

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Unity WebGL Player | ArenaC9</title>
+    <link rel="shortcut icon" href="TemplateData/favicon.ico">
+    <link rel="stylesheet" href="TemplateData/style.css">
+    <script src="./Build/Output.loader.js"></script>
+    <script>
+var instance = null;
+var container = null;
+var canvas = null;
+var loadingBar = null;
+var progressBarFull = null;
+var audio = null;
+
+var buildUrl = "Build";
+var loaderUrl = buildUrl + "/Output.loader.js";
+var config =
+{
+    dataUrl: buildUrl + "/Output.data.unityweb",
+    frameworkUrl: buildUrl + "/Output.framework.js.unityweb",
+    codeUrl: buildUrl + "/Output.wasm.unityweb",
+    streamingAssetsUrl: "StreamingAssets",
+    companyName: "TheMindVirus",
+    productName: "ArenaC9",
+    productVersion: "0.1",
+};
+
+window.onresize = function()
+{
+    if (canvas != null)
+    {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        canvas.style.width = parseFloat(canvas.style.width);
+        canvas.style.height = parseFloat(canvas.style.height);
+    }
+}
+
+var play = function(element)
+{
+    container = document.querySelector("#unity-container");
+    canvas = document.querySelector("#unity-canvas");
+    loadingBar = document.querySelector("#unity-loading-bar");
+    progressBarFull = document.querySelector("#unity-progress-bar-full");
+    audio = document.querySelector("#unity-audio-player");
+    canvas.ondragstart = function(event) { event.preventDefault(); }
+    window.onresize();
+
+    element.remove();
+    loadingBar.style.display = "block";
+    createUnityInstance(canvas, config, (progress) =>
+    {
+        progressBarFull.style.width = 100 * progress + "%";
+    }).then((unityInstance) =>
+    {
+        instance = unityInstance;
+        loadingBar.style.display = "none";
+console.log(audio);
+        audio.play();
+        Randomise();
+        //setInterval(() => { update(); }, 10);
+    }).catch((message) => { alert(message); });
+}
+
+var randomControl = "InvalidControl";
+
+var Randomise=()=>
+{
+    var mixer = parseInt(Math.random() * 9) + 1;
+    var channel = parseInt(Math.random() * 24) + 1;
+    var controls = ["InputLevelCh", "FaderLevelCh", "FaderSelectCh", "FaderSoloCh", "FaderEnableCh"];
+    var selected = parseInt(Math.random() * controls.length);
+    randomControl = mixer + controls[selected] + channel;
+    document.querySelector("#unity-help-text1-line2").innerText = randomControl;
+}
+
+var ControlChange=(name, value)=>
+{
+    console.log("[INFO]: " + name + ": " + value);
+    if (name.includes(randomControl)) { alert("Control Found!"); Randomise(); }
+}
+
+/*
+//Experimental Code:
+var update=()=>
+{
+    //json = '{"name": "4LEDSignalCh18", "r": 255, "g": 0, "b": 0, "a": 1, "emission": 1, "er": 255, "eg": 0, "eb": 0, "ei": 3}';
+    //instance.SendMessage("BigChungusMixer", "SetChroma", json); //Sets the colour of any object with optional emission (if allowed)
+    //json = '{"name": "1FaderLevelCh1", "level": 0}';
+    //instance.SendMessage("BigChungusMixer", "SetFader", json); //Sets the position of a fader (highly experimental, uncalibrated)
+}
+
+var download=(link)=>
+{
+    var img = new Image();
+    img.onload=()=>
+    {
+        //var staging = document.querySelector("#unity-staging-canvas");
+        //var stage = staging.getContext("2d");
+        //stage.drawImage(img, 0, 0, staging.width, staging.height);
+        //var data = stage.toDataURL().split("base64,")[1];
+        //instance.SendMessage("Screen1", "SetPanelData", data); //Should set both the screen and its auxiliary
+    }
+    img.src = link;
+}
+*/
+    </script>
+    <style>
+      * { margin: auto; text-align: center; overflow: hidden; }
+      body { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; background-color: black; }
+      .webgl-content { position: absolute; top: 0 left: 0; width: 100%; height: 100%; text-shadow: 1px 1px 10px white; }
+      .unity-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+      .footer { position: absolute; top: 0; width: 100%; height: 30px; background-color: cyan; box-shadow: 1px 1px 10px black; opacity: 0.5; }
+      .webgl-logo { position: relative; top: 0; left: 0; background-color: white; z-index: 9999; }
+      .fullscreen { position: relative; top: 0; right: 0; }
+      .title { position: relative; bottom: 0; font-weight: bold; }
+h1, h2 { color: white; font-family: sans-serif; }
+      #unity-help-text1 { position: fixed; top: 0; left: 0; width: 100%; height: content; z-index: 9999; color: white; font-family: sans-serif; text-shadow: 0 0 5px black; user-select: none; z-index: 9998; }
+      #unity-help-text2 { position: fixed; top: 0; left: 0; width: 100%; height: content; z-index: 9999; color: white; font-family: sans-serif; text-shadow: 0 0 5px black; user-select: none; pointer-events: none; z-index: 9998; }
+      #unity-help-text3 { position: fixed; top: 0; left: 0; width: 100%; height: content; z-index: 9999; color: white; font-family: sans-serif; text-shadow: 0 0 5px black; user-select: none; z-index: 9998; }
+      #unity-help-text1 > * { text-align: left; }
+      #unity-help-text2 > * { text-align: center; }
+      #unity-help-text3 > * { text-align: right; }
+      #unity-play-button { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: black; color: red; border: none; text-align: center; font-size: 100pt; user-select: none; z-index: 9999; }
+    </style>
+  </head>
+  <body>
+    <audio id="unity-audio-player" src="livetowin.mp3" loop></audio>
+    <div id="unity-help-text1">
+      <h2 id="unity-help-text1-line1" onclick="Randomise();">Randomise</h2>
+      <h2 id="unity-help-text1-line2"></h2>
+    </div>
+    <div id="unity-help-text2">
+      <h2 id="unity-help-text2-line1">[!!!][EXPERIMENTAL_BUILD][!!!]</h2>
+      <h2 id="unity-help-text2-line2">[!!!][MIGHT_NOT_FUNCTION][!!!]</h2>
+    </div>
+    <div id="unity-help-text3">
+      <h2 id="unity-help-text3-line1"><a href="./Source.zip">Download Source</a></h2>
+    </div>
+    <button id="unity-play-button" onclick="play(this);">Play</button>
+    <div id="unity-container" class="unity-desktop">
+      <canvas id="unity-canvas" width="100%" height="100%" onclick="requestPointerLock();"></canvas>
+      <canvas id="unity-staging-canvas" width="320" height="240" hidden></canvas>
+      <div id="unity-loading-bar">
+        <div id="unity-logo"></div>
+        <div id="unity-progress-bar-empty">
+          <div id="unity-progress-bar-full"></div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
